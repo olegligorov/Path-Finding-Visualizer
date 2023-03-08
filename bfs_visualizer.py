@@ -1,5 +1,5 @@
 from tkinter import messagebox, Tk
-import pygame
+import pygame, sys
 
 window_width = 600
 window_height = 600
@@ -80,10 +80,11 @@ def draw_cells():
                 cell.draw(window, WALL_COLOR)
             if cell.target:
                 cell.draw(window, TARGET_COLOR)
-            
-            
-# start_cell = grid[0][0]
-# start_cell.start = True
+
+def reset_grid():
+    grid.clear()
+    create_grid()
+
 
 def main():
     create_grid()
@@ -106,16 +107,18 @@ def main():
             # Quit the window
             if event.type == pygame.QUIT:
                 pygame.quit()
+                sys.exit()
             
+
             # Controls
             # when moving the mouse change the x and y positions 
-            elif event.type == pygame.MOUSEMOTION:                
+            elif event.type == pygame.MOUSEMOTION and not begin_search:                
                 x = pygame.mouse.get_pos()[0]
                 y = pygame.mouse.get_pos()[1]
                                
                 # Draw the wall
                 # C toggles creating the wall
-                if creating_wall and event.buttons[0]:
+                if event.buttons[0] and creating_wall:
                     i = x // cell_width
                     j = y // cell_height
                     grid[i][j].wall = True
@@ -123,32 +126,47 @@ def main():
                 if event.buttons[0] and not creating_wall:
                     i = x // cell_width
                     j = y // cell_height
+                    if grid[i][j].wall:
+                        continue
+
                     if start_cell:
                         start_cell.start = False
                         start_cell.visited = False
+
                     start_cell = grid[i][j]  
                     start_cell.start = True
                     start_cell.visited = True
-                    
                 
-                # Draw the target
+                # Set the target
                 if event.buttons[2]:
-                    # remove the last target_cell
-                    if target_cell:
-                        target_cell.target = False
-                    
                     i = x // cell_width
                     j = y // cell_height
+
+                    if grid[i][j].wall:
+                        continue
+                    # remove the last target_cell                    
+                    if target_cell:
+                        target_cell.target = False
+
                     target_cell_set = True
                     target_cell = grid[i][j]
                     target_cell.target = True
                 
             if event.type == pygame.KEYDOWN:
+                # reset the game
+                if event.key == pygame.K_r:
+                    reset_grid()
+                    start_cell = grid[0][0]
+                    start_cell.start = True
+                    start_cell.visited = True
+                    begin_search = False
+                    target_cell_set = False
+                    searching = True
+                    creating_wall = False                        
+                    target_cell = None
+
                 if event.key == pygame.K_c:
-                    if creating_wall:
-                        creating_wall = False
-                    else:
-                        creating_wall = True
+                    creating_wall = not creating_wall
 
                 if event.key == pygame.K_SPACE and target_cell_set:
                     begin_search = True
