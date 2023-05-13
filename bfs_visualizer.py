@@ -108,7 +108,7 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            
+             
 
             # Controls
             # when moving the mouse change the x and y positions 
@@ -153,7 +153,7 @@ def main():
                     target_cell.target = True
                 
             if event.type == pygame.KEYDOWN:
-                # reset the game
+                # Reset the game on R
                 if event.key == pygame.K_r:
                     reset_grid()
                     start_cell = grid[0][0]
@@ -201,10 +201,8 @@ def main():
                 
         window.fill((0, 0, 0))
 
-        # create all the cells
         draw_cells()
         
-
         pygame.display.flip()
 
 main()
